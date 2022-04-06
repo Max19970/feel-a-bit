@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+    Feel A Bit
+{% endblock %}
+
+
+{% block content %}
+    <h2 align="center" style="margin-top: 40px; margin-bottom: 40px">Твори, делись и обсуждай!</h2>
+    {% if current_user.is_authenticated %}
+        <div style="text-align:center">
+            <a href="publish" class="btn btn-info"><font size="5" face="Trebuchet MS">Добавить песню</font></a>
+        </div>
+    {% else %}
+        <div style="text-align:center">
+            <font size="5" face="Trebuchet MS">Авторизуйтесь, чтобы публиковать свою музыку!</font>
+        </div>
+    {% endif %}
+    {% for audio in audios %}
+        <div class="border rounded border-warning" style="margin-top: 40px">
+            <a href="user/{{ audio[0] }}" style="margin-left: 20px">{{ audio[5] }}</a>
+            <h4 style="padding-top: 20px;padding-bottom: 10px;padding-left: 20px">{{ audio[3] }}</h4>
+            <audio src="{{ audio[2] }}" controls></audio>
+            <p style="padding-left: 20px">Автор(ы): {{ audio[1] }}</p>
+            <p style="padding-top: 20px">
+                <span class="border rounded-pill"
+                      style="width:70px;margin-left:20px;padding-bottom:10px;padding-top:5px;padding-right:5px">
+                    <img src="/static/img/thumb.png" style="margin-left:10px"/> 0
+                </span>
+                <span class="border rounded-pill"
+                      style="width:70px;margin-left:20px;padding-bottom:10px;padding-top:5px;padding-right:5px">
+                    <img class='rotateimg180 mirrorY' src="/static/img/thumb.png" style="margin-left:10px"/> 0
+                </span>
+            </p>
+        </div>
+    {% endfor %}
+{% endblock %}
