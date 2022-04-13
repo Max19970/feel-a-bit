@@ -17,6 +17,10 @@ class Audio(SqlAlchemyBase):
     author = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     genre = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     duration = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    likes = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    dislikes = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    likers = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    dislikers = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     publish_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
     modified_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
 

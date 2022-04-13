@@ -24,13 +24,29 @@
             <audio src="{{ audio[2] }}" controls></audio>
             <p style="padding-left: 20px">Автор(ы): {{ audio[1] }}</p>
             <p style="padding-top: 20px">
+                {% set stl = "width:70px;margin-left:20px;padding-bottom:10px;
+                                padding-top:5px;padding-right:5px;" %}
+                {% if current_user.id in audio[9] %}
+                    {% set stl = stl + "background-color: silver" %}
+                {% endif %}
                 <span class="border rounded-pill"
-                      style="width:70px;margin-left:20px;padding-bottom:10px;padding-top:5px;padding-right:5px">
-                    <img src="/static/img/thumb.png" style="margin-left:10px"/> 0
+                      style="{{ stl }}">
+                    <a href="/like/{{ audio[6] }}">
+                        <img src="/static/img/thumb.png" style="margin-left:10px"/>
+                    </a>
+                    {{ audio[7] }}
                 </span>
+                {% set stl1 = "width:70px;margin-left:20px;padding-bottom:10px;
+                                    padding-top:5px;padding-right:5px;" %}
+                {% if current_user.id in audio[10] %}
+                    {% set stl1 = stl + "background-color: silver" %}
+                {% endif %}
                 <span class="border rounded-pill"
-                      style="width:70px;margin-left:20px;padding-bottom:10px;padding-top:5px;padding-right:5px">
-                    <img class='rotateimg180 mirrorY' src="/static/img/thumb.png" style="margin-left:10px"/> 0
+                      style="{{ stl1 }}">
+                    <a href="/dislike/{{ audio[6] }}">
+                        <img class='rotateimg180 mirrorY' src="/static/img/thumb.png" style="margin-left:10px"/>
+                    </a>
+                    {{ audio[8] }}
                 </span>
             </p>
         </div>

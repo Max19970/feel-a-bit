@@ -13,6 +13,7 @@ from data.users import User
 from data.audio import Audio
 from data import db_session
 
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['UPLOAD_FOLDER'] = 'static/audio'
@@ -35,7 +36,7 @@ def load_user(user_id):
 @login_required
 def logout():
     logout_user()
-    return redirect("/")
+    return redirect("/main")
 
 
 @app.route('/')
@@ -52,7 +53,11 @@ def site_main():
     for audio in db_sess.query(Audio).all():
         publisher_name = db_sess.query(User).filter(User.id == audio.publisher).first()
         publisher_name = publisher_name.surname + ' ' + publisher_name.name
-        audios.append([audio.publisher, audio.author, audio.file, audio.name, audio.genre, publisher_name])
+        audio_likers = map(int, audio.likers.split()) if audio.likers else []
+        audio_dislikers = map(int, audio.dislikers.split()) if audio.dislikers else []
+        audios.append([audio.publisher, audio.author, audio.file, audio.name,
+                       audio.genre, publisher_name, audio.id, audio.likes,
+                       audio.dislikes, audio_likers, audio_dislikers])
     return render_template('main.html', audios=audios)
 
 
@@ -72,7 +77,7 @@ def register():
             surname=form.surname.data,
             name=form.name.data,
             age=form.age.data,
-            role=form.role.data,
+            role=form.role.data
         )
         user.set_password(form.password.data)
         db_sess.add(user)
@@ -153,7 +158,7 @@ def edit_audio(audio_id):
                            )
 
 
-@app.route('/audio_delete/<int:audio_id>', methods=['GET', 'POST'])
+@app.route('/delete/<int:audio_id>', methods=['GET', 'POST'])
 @login_required
 def audio_delete(audio_id):
     db_sess = db_session.create_session()
@@ -166,6 +171,56 @@ def audio_delete(audio_id):
         for audio in db_sess.query(Audio).all():
             audio.id = audio.index(audio) + 1
             db_sess.commit()
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/main')
+
+
+@app.route('/like/<int:audio_id>', methods=['GET', 'POST'])
+@login_required
+def like(audio_id):
+    db_sess = db_session.create_session()
+    audio = db_sess.query(Audio).filter(Audio.id == audio_id).first()
+    audio_likers = audio.likers.split() if audio.likers else []
+    audio_dislikers = audio.dislikers.split() if audio.dislikers else []
+    if audio:
+        if str(current_user.id) not in audio_likers:
+            audio.likes += 1
+            audio_likers.append(str(current_user.id))
+            if str(current_user.id) in audio_dislikers:
+                audio.dislikes -= 1
+                del audio_dislikers[audio_dislikers.index(str(current_user.id))]
+        else:
+            audio.likes -= 1
+            del audio_likers[audio_likers.index(str(current_user.id))]
+        audio.likers = ' '.join(audio_likers)
+        audio.dislikers = ' '.join(audio_dislikers)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/main')
+
+
+@app.route('/dislike/<int:audio_id>', methods=['GET', 'POST'])
+@login_required
+def dislike(audio_id):
+    db_sess = db_session.create_session()
+    audio = db_sess.query(Audio).filter(Audio.id == audio_id).first()
+    audio_likers = audio.likers.split() if audio.likers else []
+    audio_dislikers = audio.dislikers.split() if audio.dislikers else []
+    if audio:
+        if str(current_user.id) not in audio_dislikers:
+            audio.dislikes += 1
+            audio_dislikers.append(str(current_user.id))
+            if str(current_user.id) in audio_likers:
+                audio.likes -= 1
+                del audio_likers[audio_likers.index(str(current_user.id))]
+        else:
+            audio.dislikes -= 1
+            del audio_dislikers[audio_dislikers.index(str(current_user.id))]
+        audio.likers = ' '.join(audio_likers)
+        audio.dislikers = ' '.join(audio_dislikers)
         db_sess.commit()
     else:
         abort(404)
