@@ -18,10 +18,11 @@
         </div>
     {% endif %}
     {% for audio in audios %}
-        <div class="border rounded border-warning" style="margin-top: 40px">
+        <div class="border rounded border-warning"
+             style="margin-top: 40px; margin-left: 250px; margin-right: 250px; margin-bottom: 50px">
             <a href="user/{{ audio[0] }}" style="margin-left: 20px">{{ audio[5] }}</a>
             <h4 style="padding-top: 20px;padding-bottom: 10px;padding-left: 20px">{{ audio[3] }}</h4>
-            <audio src="{{ audio[2] }}" controls></audio>
+            <audio class="audio-main" src="{{ audio[2] }}" controls></audio>
             <p style="padding-left: 20px">Автор(ы): {{ audio[1] }}</p>
             <p style="padding-top: 20px">
                 {% set stl = "width:70px;margin-left:20px;padding-bottom:10px;

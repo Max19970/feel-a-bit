@@ -1,9 +1,5 @@
 import datetime
 import sqlalchemy
-from sqlalchemy import orm
-from . import users
-
-
 from .db_session import SqlAlchemyBase
 
 

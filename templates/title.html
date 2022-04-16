@@ -7,7 +7,39 @@
 
 
 {% block content %}
-    <div align="center" style="padding-top: 40px">
-        <a href="/main" class="btn btn-secondary"><font size="5" face="Trebuchet MS">На главную</font></a>
-    </div>
+    <table cellspacing="0" cellpadding="30" class="anim">
+        <tr>
+            <td width="1000">
+                <div>
+                    {% set otc = "margin-bottom: 50px;" %}
+                    {% if pop_len < 5 %}
+                        {% set otc = otc + "margin-top: 0px;" %}
+                    {% endif %}
+                    <img src="/static/img/feel_logo.png" width="50%" height="50%"
+                         style="{{ otc }}"/><br>
+                    <h1>Делись своим творчеством уже сейчас!</h1><br>
+                    <a href="/main" class="btn btn-secondary"><font size="5" face="Trebuchet MS">На главную</font></a>
+                </div>
+            </td>
+            <td style="vertical-align: middle" align="center">
+                <h1>Самые популярные треки сайта</h1><br>
+                <div class="border rounded border-warning">
+                    {% for audio in popular_audios %}
+                    <table>
+                        <tr class="border-bottom border-warning">
+                            <td class="border-right border-warning" style="padding: 5px">
+                                <h4 style="padding-top: 20px;padding-bottom: 10px;padding-left: 20px">{{ audio[0] }}</h4>
+                                <audio class="audio-title" src="{{ audio[1] }}" controls></audio>
+                            </td>
+                            <td align="center">
+                                <img align="center" src="/static/img/thumb.png" style="padding-left: 10px; padding-right: 10px"/><br>
+                                <bdo dir="ltr">{{ audio[2] }}</bdo>
+                            </td>
+                        </tr>
+                    </table>
+                    {% endfor %}
+                </div>
+            </td>
+        </tr>
+    </table>
 {% endblock %}

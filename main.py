@@ -42,7 +42,14 @@ def logout():
 @app.route('/')
 @app.route('/index/')
 def index():
-    return render_template('title.html', title='Feel A Bit')
+    db_sess = db_session.create_session()
+    auds = db_sess.query(Audio).all()
+    auds = sorted(auds, key=lambda x: x.likes, reverse=True)
+    auds = [auds[i] for i in range(5 if len(auds) >= 5 else len(auds))]
+    pop_auds = []
+    for audio in auds:
+        pop_auds.append([audio.name, audio.file, audio.likes])
+    return render_template('title.html', title='Feel A Bit', popular_audios=pop_auds, pop_len=len(pop_auds))
 
 
 @app.route('/main')

@@ -1,8 +1,25 @@
-audio {
+.audio-main {
   margin-left: 20px;
   margin-right: 30px;
   margin-bottom: 10px;
-  width: 1060px
+  width: 1040px
+}
+
+.audio-title {
+  margin-left: 20px;
+  margin-right: 30px;
+  margin-bottom: 10px;
+  width: 530px
+}
+
+.anim {
+  opacity: 0;
+  animation: ani 0.5s forwards;
+}
+
+@keyframes ani {
+  0% {opacity: 0;}
+  100% {opacity: 1;}
 }
 
 .rotateimg180 {
