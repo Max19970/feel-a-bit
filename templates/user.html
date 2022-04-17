@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+    Feel A Bit
+{% endblock %}
+
+
+{% block content %}
+    <table style="margin-top: 50px;margin-left: 250px; margin-bottom: 40px">
+        <tr>
+            <td>
+                <img src="{{ user_info[4] }}" class="border rounded-circle border-danger" width="256px" height="256px"/>
+            </td>
+            <td style="padding-left: 30px">
+                <h3>{{ user_info[0] }} {{ user_info[1] }}</h3>
+                <font size="5">Роль: {{ user_info[2] }}</font><br>
+                <font size="5">Возраст: {{ user_info[3] }}</font>
+            </td>
+        </tr>
+    </table><br>
+    {% if user_info[6] != 0 %}
+        {% if current_user.id == user_info[5] %}
+            <h3 style="margin-left:250px">Ваши выложенные песни:</h3>
+        {% else %}
+            <h3 style="margin-left:250px">Песни, выложенные пользователем:</h3>
+        {% endif %}
+    {% else %}
+        {% if current_user.id == user_info[5] %}
+            <h3 style="margin-left:250px">Вы не выложили ни одной песни</h3>
+        {% else %}
+            <h3 style="margin-left:250px">Пользователь не выложил ни одной песни</h3>
+        {% endif %}
+    {% endif %}
+    {% for i in range(user_info[6]) %}
+        {% set stl = "margin-left: 250px; margin-right: 250px; margin-bottom: 50px;" %}
+        {% if i == 0 %}
+            {% set stl = stl + "margin-top: 20px" %}
+        {% else %}
+            {% set stl = stl + "margin-top: 40px" %}
+        {% endif %}
+        <div class="border rounded border-warning"
+             style="{{ stl }}">
+            <h4 style="padding-top: 20px;padding-bottom: 10px;padding-left: 20px">{{ user_audios[i][2] }}</h4>
+            <audio class="audio-main" src="/{{ user_audios[i][1] }}" controls></audio>
+            <p style="padding-left: 20px">Автор(ы): {{ user_audios[i][0] }}</p>
+            <p style="padding-top: 20px">
+                {% set stl = "width:70px;margin-left:20px;padding-bottom:10px;
+                                padding-top:5px;padding-right:5px;" %}
+                {% if current_user.id in user_audios[i][7] %}
+                    {% set stl = stl + "background-color: silver" %}
+                {% endif %}
+                <span class="border rounded-pill"
+                      style="{{ stl }}">
+                    <a href="/like/{{ user_audios[i][4] }} user {{ user_info[5] }}">
+                        <img src="/static/img/thumb.png" style="margin-left:10px"/>
+                    </a>
+                    {{ user_audios[i][5] }}
+                </span>
+                {% set stl1 = "width:70px;margin-left:20px;padding-bottom:10px;
+                                    padding-top:5px;padding-right:5px;" %}
+                {% if current_user.id in user_audios[i][8] %}
+                    {% set stl1 = stl + "background-color: silver" %}
+                {% endif %}
+                <span class="border rounded-pill"
+                      style="{{ stl1 }}">
+                    <a href="/dislike/{{ user_audios[i][4] }} user {{ user_info[5] }}">
+                        <img class='rotateimg180 mirrorY' src="/static/img/thumb.png" style="margin-left:10px"/>
+                    </a>
+                    {{ user_audios[i][6] }}
+                </span>
+            </p>
+        </div>
+    {% endfor %}
+{% endblock %}

@@ -16,9 +16,9 @@ from data import db_session
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-app.config['UPLOAD_FOLDER'] = 'static/audio'
 login_manager = LoginManager()
 login_manager.init_app(app)
+roles = {'1': 'Слушатель', '2': 'Музыкант'}
 
 
 def main():
@@ -58,13 +58,14 @@ def site_main():
     db_sess = db_session.create_session()
     audios = []
     for audio in db_sess.query(Audio).all():
-        publisher_name = db_sess.query(User).filter(User.id == audio.publisher).first()
-        publisher_name = publisher_name.surname + ' ' + publisher_name.name
+        publisher = db_sess.query(User).filter(User.id == audio.publisher).first()
+        publisher_name = publisher.surname + ' ' + publisher.name
+        publisher_avatar = publisher.avatar_img
         audio_likers = map(int, audio.likers.split()) if audio.likers else []
         audio_dislikers = map(int, audio.dislikers.split()) if audio.dislikers else []
         audios.append([audio.publisher, audio.author, audio.file, audio.name,
                        audio.genre, publisher_name, audio.id, audio.likes,
-                       audio.dislikes, audio_likers, audio_dislikers])
+                       audio.dislikes, audio_likers, audio_dislikers, publisher_avatar])
     return render_template('main.html', audios=audios)
 
 
@@ -87,6 +88,11 @@ def register():
             role=form.role.data
         )
         user.set_password(form.password.data)
+        if form.avatar_img.data:
+            file = form.avatar_img.data
+            filename = secure_filename(file.filename)
+            file.save(os.path.join('static/img/users_profiles/', filename))
+            user.avatar_img = f'/static/img/users_profiles/{filename}'
         db_sess.add(user)
         db_sess.commit()
         return redirect('/login')
@@ -116,7 +122,7 @@ def publish():
         db_sess = db_session.create_session()
         file = form.file.data
         filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        file.save(os.path.join('static/audio', filename))
         audio = Audio(
             publisher=current_user.id,
             author=form.author.data,
@@ -184,9 +190,12 @@ def audio_delete(audio_id):
     return redirect('/main')
 
 
-@app.route('/like/<int:audio_id>', methods=['GET', 'POST'])
+@app.route('/like/<data>', methods=['GET', 'POST'])
 @login_required
-def like(audio_id):
+def like(data):
+    audio_id, prev_url = data.split(None, 1)
+    audio_id = int(audio_id)
+    prev_url = '/'.join(prev_url.split())
     db_sess = db_session.create_session()
     audio = db_sess.query(Audio).filter(Audio.id == audio_id).first()
     audio_likers = audio.likers.split() if audio.likers else []
@@ -206,12 +215,15 @@ def like(audio_id):
         db_sess.commit()
     else:
         abort(404)
-    return redirect('/main')
+    return redirect(f'/{prev_url}')
 
 
-@app.route('/dislike/<int:audio_id>', methods=['GET', 'POST'])
+@app.route('/dislike/<data>', methods=['GET', 'POST'])
 @login_required
-def dislike(audio_id):
+def dislike(data):
+    audio_id, prev_url = data.split(None, 1)
+    audio_id = int(audio_id)
+    prev_url = '/'.join(prev_url.split())
     db_sess = db_session.create_session()
     audio = db_sess.query(Audio).filter(Audio.id == audio_id).first()
     audio_likers = audio.likers.split() if audio.likers else []
@@ -231,7 +243,22 @@ def dislike(audio_id):
         db_sess.commit()
     else:
         abort(404)
-    return redirect('/main')
+    return redirect(f'/{prev_url}')
+
+
+@app.route('/user/<int:user_id>')
+def user_prof(user_id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.id == user_id).first()
+    user_audios = []
+    for audio in db_sess.query(Audio).filter(Audio.publisher == user_id).all():
+        audio_likers = map(int, audio.likers.split()) if audio.likers else []
+        audio_dislikers = map(int, audio.dislikers.split()) if audio.dislikers else []
+        user_audios.append([audio.author, audio.file, audio.name, audio.genre, audio.id,
+                             audio.likes, audio.dislikes, audio_likers, audio_dislikers])
+    user_role = roles[user.role]
+    user_info = [user.surname, user.name, user_role, user.age, user.avatar_img, user.id, len(user_audios)]
+    return render_template('user.html', user_info=user_info, user_audios=user_audios)
 
 
 if __name__ == '__main__':

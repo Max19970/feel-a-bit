@@ -20,7 +20,10 @@
     {% for audio in audios %}
         <div class="border rounded border-warning"
              style="margin-top: 40px; margin-left: 250px; margin-right: 250px; margin-bottom: 50px">
-            <a href="user/{{ audio[0] }}" style="margin-left: 20px">{{ audio[5] }}</a>
+            <a href="user/{{ audio[0] }}" style="margin-top: 15px;margin-left: 15px;display: inline-block">
+                <img src="{{ audio[11] }}" width="48px" height="48px"
+                     class="border rounded-circle border-danger"/> {{ audio[5] }}
+            </a>
             <h4 style="padding-top: 20px;padding-bottom: 10px;padding-left: 20px">{{ audio[3] }}</h4>
             <audio class="audio-main" src="{{ audio[2] }}" controls></audio>
             <p style="padding-left: 20px">Автор(ы): {{ audio[1] }}</p>
@@ -32,7 +35,7 @@
                 {% endif %}
                 <span class="border rounded-pill"
                       style="{{ stl }}">
-                    <a href="/like/{{ audio[6] }}">
+                    <a href="/like/{{ audio[6] }} main">
                         <img src="/static/img/thumb.png" style="margin-left:10px"/>
                     </a>
                     {{ audio[7] }}
@@ -44,7 +47,7 @@
                 {% endif %}
                 <span class="border rounded-pill"
                       style="{{ stl1 }}">
-                    <a href="/dislike/{{ audio[6] }}">
+                    <a href="/dislike/{{ audio[6] }} main">
                         <img class='rotateimg180 mirrorY' src="/static/img/thumb.png" style="margin-left:10px"/>
                     </a>
                     {{ audio[8] }}

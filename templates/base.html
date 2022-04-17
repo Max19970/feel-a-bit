@@ -14,9 +14,17 @@
 <body>
 <header>
     <nav class="navbar navbar-light bg-light">
-        <a href="/"><img src="static/img/feel_logo.png" hspace="50" vspace="30" class="navbar-brand"/></a>
+        <a href="/"><img src="/static/img/feel_logo.png" hspace="50" vspace="30" class="navbar-brand"/></a>
         {% if current_user.is_authenticated %}
-            <a class="navbar-brand" href="/logout">{{ current_user.name }} {{ current_user.surname }}</a>
+            <div>
+                <img src="{{ current_user.avatar_img }}" width="48px" height="48px"
+                     class="border rounded-circle border-danger" style="margin-bottom: 10px"/>
+                <select style="border: 0px;font-size: 20px;margin-right: 20px" class="bg-light" onChange="window.location.href=this.value">
+                    <option selected disabled hidden>{{ current_user.name }} {{ current_user.surname }}</option>
+                    <option value="/user/{{ current_user.id }}">Профиль</option>
+                    <option value="/logout">Выйти</option>
+                </select>
+            </div>
         {% else %}
             <p>
                 <a class="btn btn-primary " href="/register">Зарегистрироваться</a>

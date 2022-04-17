@@ -15,6 +15,7 @@ class User(SqlAlchemyBase, UserMixin):
     role = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     email = sqlalchemy.Column(sqlalchemy.String, index=True, unique=True, nullable=True)
     age = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
+    avatar_img = sqlalchemy.Column(sqlalchemy.String, default='/static/img/user.png')
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     modified_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
     register_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
