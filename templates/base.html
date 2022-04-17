@@ -14,7 +14,10 @@
 <body>
 <header>
     <nav class="navbar navbar-light bg-light">
-        <a href="/"><img src="/static/img/feel_logo.png" hspace="50" vspace="30" class="navbar-brand"/></a>
+        <div>
+            <a href="/"><img src="/static/img/feel_logo.png" hspace="50" vspace="30" class="navbar-brand"/></a>
+            <a href="/main" style="margin-left: 30px"><font size="5" face="Trebuchet MS" color="grey">На главную</font></a>
+        </div>
         {% if current_user.is_authenticated %}
             <div>
                 <img src="{{ current_user.avatar_img }}" width="48px" height="48px"
