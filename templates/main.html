@@ -8,6 +8,7 @@
 
 {% block content %}
     <h2 align="center" style="margin-top: 40px; margin-bottom: 40px">Твори, делись и обсуждай!</h2>
+
     {% if current_user.is_authenticated %}
         <div style="text-align:center">
             <a href="publish" class="btn btn-info"><font size="5" face="Trebuchet MS">Добавить песню</font></a>
@@ -17,6 +18,15 @@
             <font size="5" face="Trebuchet MS">Авторизуйтесь, чтобы публиковать свою музыку!</font>
         </div>
     {% endif %}
+
+    <div class="input-group" style="margin-left: 525px;margin-top: 50px">
+        <div class="form-outline" style="margin-right: 10px">
+            <input type="search" size="70" id="search_field"
+                   class="form-control" placeholder="Введите запрос..." value="{{ search_value }}"/>
+        </div>
+        <button class="btn btn-primary" onclick="search()">Search</button>
+    </div>
+
     {% for audio in audios %}
         <div class="border rounded border-warning"
              style="margin-top: 40px; margin-left: 250px; margin-right: 250px; margin-bottom: 50px">
@@ -25,7 +35,7 @@
                      class="border rounded-circle border-danger"/> {{ audio[5] }}
             </a>
             <h4 style="padding-top: 20px;padding-bottom: 10px;padding-left: 20px">{{ audio[3] }}</h4>
-            <audio class="audio-main" src="{{ audio[2] }}" controls></audio>
+            <audio class="audio-main" src="/{{ audio[2] }}" controls></audio>
             <p style="padding-left: 20px">Автор(ы): {{ audio[1] }}</p>
             <p style="padding-top: 20px">
                 {% set stl = "width:70px;margin-left:20px;padding-bottom:10px;
@@ -55,4 +65,11 @@
             </p>
         </div>
     {% endfor %}
+
+    <script>
+    function search() {
+        var x = document.getElementById("search_field").value;
+        window.location.replace(`/main/${x}`);
+    }
+    </script>
 {% endblock %}

@@ -52,12 +52,16 @@ def index():
     return render_template('title.html', title='Feel A Bit', popular_audios=pop_auds, pop_len=len(pop_auds))
 
 
-@app.route('/main')
-def site_main():
-    db_session.global_init('db/dataB.db')
+@app.route('/main/')
+@app.route('/main/<search_value>')
+def site_main(search_value=None):
     db_sess = db_session.create_session()
     audios = []
-    for audio in db_sess.query(Audio).all():
+    if search_value:
+        g_auds = db_sess.query(Audio).filter(Audio.name.like(f'%{search_value.lower()}%')).all()
+    else:
+        g_auds = db_sess.query(Audio).all()
+    for audio in g_auds:
         publisher = db_sess.query(User).filter(User.id == audio.publisher).first()
         publisher_name = publisher.surname + ' ' + publisher.name
         publisher_avatar = publisher.avatar_img
@@ -66,7 +70,7 @@ def site_main():
         audios.append([audio.publisher, audio.author, audio.file, audio.name,
                        audio.genre, publisher_name, audio.id, audio.likes,
                        audio.dislikes, audio_likers, audio_dislikers, publisher_avatar])
-    return render_template('main.html', audios=audios)
+    return render_template('main.html', audios=audios, search_value=(search_value if search_value else ''))
 
 
 @app.route('/register', methods=['GET', 'POST'])
