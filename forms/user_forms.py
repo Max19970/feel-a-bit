@@ -16,8 +16,21 @@ class RegisterForm(FlaskForm):
     surname = StringField('Фамилия', validators=[DataRequired()])
     name = StringField('Имя', validators=[DataRequired()])
     age = IntegerField('Возраст', validators=[DataRequired()])
-    role = SelectField('Роль', choices=[(1, 'Слушатель'), (2, 'Музыкант')], validators=[DataRequired()])
+    role = SelectField('Роль', choices=[(2, 'Слушатель'), (3, 'Музыкант')], validators=[DataRequired()])
     submit = SubmitField('Зарегистрироваться')
+
+
+class EditInfoForm(FlaskForm):
+    email = EmailField('Адрес электронной почты', validators=[DataRequired()])
+    avatar_img = FileField('Файл аватара',
+                           validators=[FileAllowed(['png', 'jpg', 'jpeg'],
+                                                   'Для загрузки картинки аватара доступны '
+                                                   'только форматы PNG и JPG/JPEG')])
+    surname = StringField('Фамилия', validators=[DataRequired()])
+    name = StringField('Имя', validators=[DataRequired()])
+    age = IntegerField('Возраст', validators=[DataRequired()])
+    role = SelectField('Роль', choices=[(2, 'Слушатель'), (3, 'Музыкант')], validators=[DataRequired()])
+    submit = SubmitField('Подтвердить изменения')
 
 
 class LoginForm(FlaskForm):

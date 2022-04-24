@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 import datetime as dt
 from mutagen.mp3 import MP3
 
-from forms.user_forms import RegisterForm, LoginForm
+from forms.user_forms import RegisterForm, LoginForm, EditInfoForm
 from forms.audio_forms import PublishForm
 from data.users import User
 from data.audio import Audio
@@ -18,7 +18,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
-roles = {'1': 'Слушатель', '2': 'Музыкант'}
+roles = {'0': 'Администратор', '1': 'Модератор',
+         '2': 'Слушатель', '3': 'Музыкант'}
 
 
 def main():
@@ -100,7 +101,7 @@ def register():
         db_sess.add(user)
         db_sess.commit()
         return redirect('/login')
-    return render_template('register.html', title='Регистрация', form=form)
+    return render_template('register.html', title='Регистрация', form=form, mode='register')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -115,7 +116,7 @@ def login():
         return render_template('login.html',
                                message="Ошибка! Логин или пароль введены неверно",
                                form=form)
-    return render_template('login.html', title='Авторизация', form=form)
+    return render_template('login.html', title='Авторизация', form=form, mode='register')
 
 
 @app.route('/publish',  methods=['GET', 'POST'])
@@ -141,57 +142,6 @@ def publish():
         return redirect('/main')
     return render_template('audio_x.html', title='Добавление песни',
                            form=form)
-
-
-@app.route('/audio/<int:audio_id>', methods=['GET', 'POST'])
-@login_required
-def edit_audio(audio_id):
-    form = PublishForm()
-    if request.method == "GET":
-        db_sess = db_session.create_session()
-        audio = db_sess.query(Audio).filter(Audio.id == audio_id, Audio.publisher == current_user.id).first()
-        if audio:
-            form.author.data = audio.author
-            form.name.data = audio.name
-            form.genre.data = audio.genre
-            form.file.data = audio.file
-        else:
-            abort(404)
-    if form.validate_on_submit():
-        db_sess = db_session.create_session()
-        audio = db_sess.query(Audio).filter(Audio.id == audio_id, Audio.publisher == current_user.id).first()
-        if audio:
-            audio.author = form.author.data
-            audio.name = form.name.data
-            audio.genre = form.genre.data
-            audio.file = form.file.data
-            db_sess.commit()
-            return redirect('/main')
-        else:
-            abort(404)
-    return render_template('audio_x.html',
-                           title='Редактирование песни',
-                           form=form
-                           )
-
-
-@app.route('/delete/<int:audio_id>', methods=['GET', 'POST'])
-@login_required
-def audio_delete(audio_id):
-    db_sess = db_session.create_session()
-    audio = db_sess.query(Audio).filter(Audio.id == audio_id, Audio.publisher == current_user.id).first()
-    if audio:
-        db_sess.delete(audio)
-        audios = []
-        for audio in db_sess.query(Audio).all():
-            audios.append(audio)
-        for audio in db_sess.query(Audio).all():
-            audio.id = audio.index(audio) + 1
-            db_sess.commit()
-        db_sess.commit()
-    else:
-        abort(404)
-    return redirect('/main')
 
 
 @app.route('/like/<data>', methods=['GET', 'POST'])
@@ -259,10 +209,64 @@ def user_prof(user_id):
         audio_likers = map(int, audio.likers.split()) if audio.likers else []
         audio_dislikers = map(int, audio.dislikers.split()) if audio.dislikers else []
         user_audios.append([audio.author, audio.file, audio.name, audio.genre, audio.id,
-                             audio.likes, audio.dislikes, audio_likers, audio_dislikers])
+                            audio.likes, audio.dislikes, audio_likers, audio_dislikers])
     user_role = roles[user.role]
     user_info = [user.surname, user.name, user_role, user.age, user.avatar_img, user.id, len(user_audios)]
     return render_template('user.html', user_info=user_info, user_audios=user_audios)
+
+
+@app.route('/user/<int:user_id>/edit', methods=['GET', 'POST'])
+def user_edit(user_id):
+    form = EditInfoForm()
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.id == user_id).first()
+        if user:
+            form.email.data = user.email
+            form.surname.data = user.surname
+            form.name.data = user.name
+            form.age.data = user.age
+            form.role.data = user.role
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.id == user_id).first()
+        if user:
+            user.email = form.email.data
+            if form.avatar_img.data:
+                file = form.avatar_img.data
+                filename = secure_filename(file.filename)
+                file.save(os.path.join('static/img/users_profiles/', filename))
+                user.avatar_img = f'/static/img/users_profiles/{filename}'
+            user.surname = form.surname.data
+            user.name = form.name.data
+            user.age = form.age.data
+            user.role = form.role.data
+            db_sess.commit()
+            return redirect(f'/user/{user_id}')
+        else:
+            abort(404)
+    return render_template('register.html',
+                           title='Редактирование профиля',
+                           form=form, mode='edit'
+                           )
+
+
+@app.route('/delete_audio/<data>', methods=['GET', 'POST'])
+def delete_audio(data):
+    audio_id, prev_url = data.split(None, 1)
+    audio_id = int(audio_id)
+    prev_url = '/'.join(prev_url.split())
+    db_sess = db_session.create_session()
+    audio = db_sess.query(Audio).filter(Audio.id == audio_id).first()
+    if audio:
+        db_sess.delete(audio)
+        os.remove(audio.file)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect(f'/{prev_url}')
 
 
 if __name__ == '__main__':

@@ -11,7 +11,7 @@
 
     {% if current_user.is_authenticated %}
         <div style="text-align:center">
-            <a href="publish" class="btn btn-info"><font size="5" face="Trebuchet MS">Добавить песню</font></a>
+            <a href="/publish" class="btn btn-info"><font size="5" face="Trebuchet MS">Добавить песню</font></a>
         </div>
     {% else %}
         <div style="text-align:center">
@@ -19,18 +19,18 @@
         </div>
     {% endif %}
 
-    <div class="input-group" style="margin-left: 525px;margin-top: 50px">
-        <div class="form-outline" style="margin-right: 10px">
+    <div class="input-group" style="margin-top: 50px">
+        <div class="form-outline" style="margin-right: 10px;margin-left: auto">
             <input type="search" size="70" id="search_field"
                    class="form-control" placeholder="Введите запрос..." value="{{ search_value }}"/>
         </div>
-        <button class="btn btn-primary" onclick="search()">Искать</button>
+        <button class="btn btn-primary" style="margin-right: auto" onclick="search()">Искать</button>
     </div>
 
     {% for audio in audios %}
         <div class="border rounded border-warning"
              style="margin-top: 40px; margin-left: 250px; margin-right: 250px; margin-bottom: 50px">
-            <a href="user/{{ audio[0] }}" style="margin-top: 15px;margin-left: 15px;display: inline-block">
+            <a href="/user/{{ audio[0] }}" style="margin-top: 15px;margin-left: 15px;display: inline-block">
                 <img src="{{ audio[11] }}" width="48px" height="48px"
                      class="border rounded-circle border-danger"/> {{ audio[5] }}
             </a>
@@ -62,14 +62,51 @@
                     </a>
                     {{ audio[8] }}
                 </span>
+                {% if current_user.id == audio[0] or current_user.role == '0' or current_user.role == '1' %}
+                    <span style="margin-left: 710px" id="predelete_op_{{ audio[6] }}">
+                        <button style="border: 0px;background-color: white" onclick="predelete({{ audio[6] }})">
+                            <font color="crimson">Удалить композицию</font>
+                        </button>
+                    </span>
+                {% endif %}
             </p>
         </div>
     {% endfor %}
 
     <script>
-    function search() {
-        var x = document.getElementById("search_field").value;
-        window.location.replace(`/main/${x}`);
-    }
+        function search() {
+            var x = document.getElementById("search_field").value;
+            window.location.replace(`/main/${x}`);
+        }
+    </script>
+
+    <script>
+        function predelete(audio_id) {
+            var old_element = document.getElementById(`predelete_op_${audio_id}`);
+            var new_element = document.createElement('span');
+            new_element.id = `delete_op_${audio_id}`;
+            new_element.style.cssText = 'margin-left: 600px';
+            new_element.innerHTML = `<font color='crimson' style='margin-right: 30px'>Вы уверены?</font> <button style='border: 0px;background-color: white' onclick='delete_audio(${audio_id})'><font color='crimson'>Удалить</font></button> <button style='border: 0px;background-color: white' onclick='cancel(${audio_id})'><font color='crimson'>Отмена</font></button>`;
+
+            old_element.replaceWith(new_element);
+        }
+    </script>
+
+    <script>
+        function delete_audio(audio_id) {
+            window.location.replace(`/delete_audio/${audio_id} main`);
+        }
+    </script>
+
+    <script>
+        function cancel(audio_id) {
+            var old_element = document.getElementById(`delete_op_${audio_id}`);
+            var new_element = document.createElement('span');
+            new_element.id = `predelete_op_${audio_id}`;
+            new_element.style.cssText = 'margin-left: 710px';
+            new_element.innerHTML = `<button style='border: 0px;background-color: white' onclick='predelete(${audio_id})'><font color='crimson'>Удалить композицию</font></button>`;
+
+            old_element.replaceWith(new_element);
+        }
     </script>
 {% endblock %}
