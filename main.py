@@ -282,7 +282,6 @@ def comments(audio_id):
     audio_comments = []
     if audio.comments:
         for comment_data in audio.comments.split('✓'):
-            print(comment_data)
             commentator_id, comment_text, comment_date = comment_data.replace('[', '').replace(']', '').split('Ø', 2)
             commentator = db_sess.query(User).filter(User.id == commentator_id).first()
             comment_id = audio.comments.split('✓').index(comment_data)
@@ -300,7 +299,6 @@ def comments(audio_id):
 
 @app.route('/comment_send/<data>')
 def comment_send(data):
-    print(data)
     audio_id, commentator_id, comment_text = data.split(None, 2)
     db_sess = db_session.create_session()
     audio = db_sess.query(Audio).filter(Audio.id == audio_id).first()
