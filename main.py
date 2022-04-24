@@ -50,7 +50,7 @@ def index():
     pop_auds = []
     for audio in auds:
         pop_auds.append([audio.name, audio.file, audio.likes])
-    return render_template('title.html', title='Feel A Bit', popular_audios=pop_auds, pop_len=len(pop_auds))
+    return render_template('title.html', popular_audios=pop_auds, pop_len=len(pop_auds))
 
 
 @app.route('/main/')
@@ -68,10 +68,12 @@ def site_main(search_value=None):
         publisher_avatar = publisher.avatar_img
         audio_likers = map(int, audio.likers.split()) if audio.likers else []
         audio_dislikers = map(int, audio.dislikers.split()) if audio.dislikers else []
+        comments_sum = len(audio.comments.split(',')) if audio.comments != '' else 0
         audios.append([audio.publisher, audio.author, audio.file, audio.name,
                        audio.genre, publisher_name, audio.id, audio.likes,
-                       audio.dislikes, audio_likers, audio_dislikers, publisher_avatar])
-    return render_template('main.html', audios=audios, search_value=(search_value if search_value else ''))
+                       audio.dislikes, audio_likers, audio_dislikers, publisher_avatar,
+                       comments_sum])
+    return render_template('main.html', audios=reversed(audios), search_value=(search_value if search_value else ''))
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -101,7 +103,7 @@ def register():
         db_sess.add(user)
         db_sess.commit()
         return redirect('/login')
-    return render_template('register.html', title='Регистрация', form=form, mode='register')
+    return render_template('register.html', form=form, mode='register')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -116,7 +118,7 @@ def login():
         return render_template('login.html',
                                message="Ошибка! Логин или пароль введены неверно",
                                form=form)
-    return render_template('login.html', title='Авторизация', form=form, mode='register')
+    return render_template('login.html', form=form, mode='register')
 
 
 @app.route('/publish',  methods=['GET', 'POST'])
@@ -140,8 +142,7 @@ def publish():
         db_sess.add(audio)
         db_sess.commit()
         return redirect('/main')
-    return render_template('audio_x.html', title='Добавление песни',
-                           form=form)
+    return render_template('audio_x.html', form=form)
 
 
 @app.route('/like/<data>', methods=['GET', 'POST'])
@@ -208,8 +209,10 @@ def user_prof(user_id):
     for audio in db_sess.query(Audio).filter(Audio.publisher == user_id).all():
         audio_likers = map(int, audio.likers.split()) if audio.likers else []
         audio_dislikers = map(int, audio.dislikers.split()) if audio.dislikers else []
+        comments_sum = len(audio.comments.split(',')) if audio.comments != '' else 0
         user_audios.append([audio.author, audio.file, audio.name, audio.genre, audio.id,
-                            audio.likes, audio.dislikes, audio_likers, audio_dislikers])
+                            audio.likes, audio.dislikes, audio_likers, audio_dislikers,
+                            comments_sum])
     user_role = roles[user.role]
     user_info = [user.surname, user.name, user_role, user.age, user.avatar_img, user.id, len(user_audios)]
     return render_template('user.html', user_info=user_info, user_audios=user_audios)
@@ -249,8 +252,7 @@ def user_edit(user_id):
             abort(404)
     return render_template('register.html',
                            title='Редактирование профиля',
-                           form=form, mode='edit'
-                           )
+                           form=form, mode='edit')
 
 
 @app.route('/delete_audio/<data>', methods=['GET', 'POST'])
@@ -263,10 +265,63 @@ def delete_audio(data):
     if audio:
         db_sess.delete(audio)
         os.remove(audio.file)
+        audios = db_sess.query(Audio).all()
+        for audio in audios:
+            audio.id = audios.index(audio) + 1  # Обновление индексов работ после изменений
+            db_sess.commit()
         db_sess.commit()
     else:
         abort(404)
     return redirect(f'/{prev_url}')
+
+
+@app.route('/comments/<int:audio_id>')
+def comments(audio_id):
+    db_sess = db_session.create_session()
+    audio = db_sess.query(Audio).filter(Audio.id == audio_id).first()
+    audio_comments = []
+    if audio.comments:
+        for comment_data in audio.comments.split('✓'):
+            print(comment_data)
+            commentator_id, comment_text, comment_date = comment_data.replace('[', '').replace(']', '').split('Ø', 2)
+            commentator = db_sess.query(User).filter(User.id == commentator_id).first()
+            comment_id = audio.comments.split('✓').index(comment_data)
+            audio_comments.append([commentator, comment_text, comment_date, comment_id])
+    publisher = db_sess.query(User).filter(User.id == audio.publisher).first()
+    publisher_name = publisher.surname + ' ' + publisher.name
+    publisher_avatar = publisher.avatar_img
+    audio_likers = map(int, audio.likers.split()) if audio.likers else []
+    audio_dislikers = map(int, audio.dislikers.split()) if audio.dislikers else []
+    audio_info = [audio.publisher, audio.author, audio.file, audio.name,
+                  audio.genre, publisher_name, audio.id, audio.likes,
+                  audio.dislikes, audio_likers, audio_dislikers, publisher_avatar]
+    return render_template('comments.html', audio=audio_info, audio_comments=reversed(audio_comments))
+
+
+@app.route('/comment_send/<data>')
+def comment_send(data):
+    print(data)
+    audio_id, commentator_id, comment_text = data.split(None, 2)
+    db_sess = db_session.create_session()
+    audio = db_sess.query(Audio).filter(Audio.id == audio_id).first()
+    if audio.comments:
+        audio.comments += f'✓[{commentator_id}Ø{comment_text}Ø{dt.datetime.now().strftime("%d/%m/%Y %H:%M")}]'
+    else:
+        audio.comments += f'[{commentator_id}Ø{comment_text}Ø{dt.datetime.now().strftime("%d/%m/%Y %H:%M")}]'
+    db_sess.commit()
+    return redirect(f'/comments/{audio_id}')
+
+
+@app.route('/delete_comment/<data>')
+def delete_comment(data):
+    comment_id, audio_id = data.split()
+    db_sess = db_session.create_session()
+    audio = db_sess.query(Audio).filter(Audio.id == audio_id).first()
+    audio_comments = audio.comments.split('✓')
+    del audio_comments[int(comment_id)]
+    audio.comments = '✓'.join(audio_comments)
+    db_sess.commit()
+    return redirect(f'/comments/{audio_id}')
 
 
 if __name__ == '__main__':

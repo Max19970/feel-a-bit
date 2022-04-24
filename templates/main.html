@@ -37,39 +37,46 @@
             <h4 style="padding-top: 20px;padding-bottom: 10px;padding-left: 20px">{{ audio[3] }}</h4>
             <audio class="audio-main" src="/{{ audio[2] }}" controls></audio>
             <p style="padding-left: 20px">Автор(ы): {{ audio[1] }}</p>
-            <p style="padding-top: 20px">
+            <table style="margin-top: 20px; margin-bottom: 20px" width="1060px">
+                <tr>
                 {% set stl = "width:70px;margin-left:20px;padding-bottom:10px;
                                 padding-top:5px;padding-right:5px;" %}
                 {% if current_user.id in audio[9] %}
                     {% set stl = stl + "background-color: silver" %}
                 {% endif %}
-                <span class="border rounded-pill"
+                <td align="left">
+                    <span class="border rounded-pill"
                       style="{{ stl }}">
                     <a href="/like/{{ audio[6] }} main">
                         <img src="/static/img/thumb.png" style="margin-left:10px"/>
                     </a>
                     {{ audio[7] }}
-                </span>
+                    </span>
                 {% set stl1 = "width:70px;margin-left:20px;padding-bottom:10px;
                                     padding-top:5px;padding-right:5px;" %}
                 {% if current_user.id in audio[10] %}
                     {% set stl1 = stl + "background-color: silver" %}
                 {% endif %}
-                <span class="border rounded-pill"
+                    <span class="border rounded-pill"
                       style="{{ stl1 }}">
                     <a href="/dislike/{{ audio[6] }} main">
                         <img class='rotateimg180 mirrorY' src="/static/img/thumb.png" style="margin-left:10px"/>
                     </a>
                     {{ audio[8] }}
+                    </span>
+                <span>
+                    <a href="/comments/{{ audio[6] }}" style="text-decoration: none;margin-left: 20px">Комментарии: {{ audio[12] }}</a>
                 </span>
+                </td>
                 {% if current_user.id == audio[0] or current_user.role == '0' or current_user.role == '1' %}
-                    <span style="margin-left: 710px" id="predelete_op_{{ audio[6] }}">
+                    <td id="predelete_op_{{ audio[6] }}" align="right">
                         <button style="border: 0px;background-color: white" onclick="predelete({{ audio[6] }})">
                             <font color="crimson">Удалить композицию</font>
                         </button>
-                    </span>
+                    </td>
                 {% endif %}
-            </p>
+                </tr>
+            </table>
         </div>
     {% endfor %}
 
@@ -83,9 +90,9 @@
     <script>
         function predelete(audio_id) {
             var old_element = document.getElementById(`predelete_op_${audio_id}`);
-            var new_element = document.createElement('span');
+            var new_element = document.createElement('td');
+            new_element.align = 'right'
             new_element.id = `delete_op_${audio_id}`;
-            new_element.style.cssText = 'margin-left: 600px';
             new_element.innerHTML = `<font color='crimson' style='margin-right: 30px'>Вы уверены?</font> <button style='border: 0px;background-color: white' onclick='delete_audio(${audio_id})'><font color='crimson'>Удалить</font></button> <button style='border: 0px;background-color: white' onclick='cancel(${audio_id})'><font color='crimson'>Отмена</font></button>`;
 
             old_element.replaceWith(new_element);
@@ -101,9 +108,9 @@
     <script>
         function cancel(audio_id) {
             var old_element = document.getElementById(`delete_op_${audio_id}`);
-            var new_element = document.createElement('span');
+            var new_element = document.createElement('td');
             new_element.id = `predelete_op_${audio_id}`;
-            new_element.style.cssText = 'margin-left: 710px';
+            new_element.align = 'right'
             new_element.innerHTML = `<button style='border: 0px;background-color: white' onclick='predelete(${audio_id})'><font color='crimson'>Удалить композицию</font></button>`;
 
             old_element.replaceWith(new_element);

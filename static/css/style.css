@@ -12,6 +12,12 @@
   width: 530px
 }
 
+.word {
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+}
+
 .anim {
   opacity: 0;
   animation: ani 0.5s forwards;
