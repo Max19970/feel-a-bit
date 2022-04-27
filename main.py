@@ -65,7 +65,7 @@ def site_main(search_value=None):
     db_sess = db_session.create_session()
     audios = []
     if search_value:
-        g_auds = db_sess.query(Audio).filter(Audio.name.like(f'%{search_value.lower()}%')).all()
+        g_auds = db_sess.query(Audio).filter(Audio.name.like(f'%{search_value.lower().strip()}%')).all()
     else:
         g_auds = db_sess.query(Audio).all()
     for audio in g_auds:
@@ -273,7 +273,7 @@ def delete_audio(data):
         os.remove(audio.file)
         audios = db_sess.query(Audio).all()
         for audio in audios:
-            audio.id = audios.index(audio) + 1  # Обновление индексов работ после изменений
+            audio.id = audios.index(audio) + 1
             db_sess.commit()
         db_sess.commit()
     else:
