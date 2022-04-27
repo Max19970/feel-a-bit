@@ -134,6 +134,7 @@ def publish():
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         file = form.file.data
+        file.filename = f'{len(db_sess.query(Audio).all()) + 1}.mp3'
         filename = secure_filename(file.filename)
         file.save(os.path.join('static/audio', filename))
         audio = Audio(
