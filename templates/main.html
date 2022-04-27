@@ -35,7 +35,7 @@
                      class="border rounded-circle border-danger"/> {{ audio[5] }}
             </a>
             <h4 style="padding-top: 20px;padding-bottom: 10px;padding-left: 20px">{{ audio[3] }}</h4>
-            <audio class="audio-main" src="/{{ audio[2] }}" controls></audio>
+            <audio class="audio-main" src="/{{ audio[2] }}" controls onplay="stopAll({{ audio[6] }})"></audio>
             <p style="padding-left: 20px">Автор(ы): {{ audio[1] }}</p>
             <table style="margin-top: 20px; margin-bottom: 20px" width="1060px">
                 <tr>
@@ -114,6 +114,17 @@
             new_element.innerHTML = `<button style='border: 0px;background-color: white' onclick='predelete(${audio_id})'><font color='crimson'>Удалить композицию</font></button>`;
 
             old_element.replaceWith(new_element);
+        }
+    </script>
+
+    <script>
+        var a = document.getElementsByTagName("audio");
+
+        function stopAll(b){
+            b = a.length - b;
+            for(i=0;i<a.length;i++){
+                if(!(i==b)){a[i].pause(); a[i].currentTime=0} else {a[i].play()};
+            }
         }
     </script>
 {% endblock %}
