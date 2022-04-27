@@ -3,6 +3,7 @@ import os
 from flask import Flask, render_template, redirect, request, abort
 from flask_login import LoginManager, login_required, logout_user, login_user, current_user
 from werkzeug.utils import secure_filename
+from flask_restful import Api
 
 import datetime as dt
 from mutagen.mp3 import MP3
@@ -11,10 +12,11 @@ from forms.user_forms import RegisterForm, LoginForm, EditInfoForm
 from forms.audio_forms import PublishForm
 from data.users import User
 from data.audio import Audio
-from data import db_session
+from data import db_session, api_file
 
 
 app = Flask(__name__)
+api = Api(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -24,6 +26,10 @@ roles = {'0': 'Администратор', '1': 'Модератор',
 
 def main():
     db_session.global_init("db/dataB.db")
+    api.add_resource(api_file.UserListResource, '/api/users')
+    api.add_resource(api_file.UserResource, '/api/users/<int:user_id>')
+    api.add_resource(api_file.AudioListResource, '/api/audios')
+    api.add_resource(api_file.AudioResource, '/api/audios/<int:audio_id>')
     app.run()
 
 
