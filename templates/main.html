@@ -7,19 +7,19 @@
 
 
 {% block content %}
-    <h2 align="center" style="margin-top: 40px; margin-bottom: 40px">Твори, делись и обсуждай!</h2>
+    <h2 align="center" style="margin-top: 40px; margin-bottom: 40px" class="mainanim">Твори, делись и обсуждай!</h2>
 
     {% if current_user.is_authenticated %}
-        <div style="text-align:center">
+        <div style="text-align:center" class="mainanim">
             <a href="/publish" class="btn btn-info"><font size="5" face="Trebuchet MS">Добавить песню</font></a>
         </div>
     {% else %}
-        <div style="text-align:center">
+        <div style="text-align:center" class="mainanim">
             <font size="5" face="Trebuchet MS">Авторизуйтесь, чтобы публиковать свою музыку!</font>
         </div>
     {% endif %}
 
-    <div class="input-group" style="margin-top: 50px">
+    <div class="input-group mainanim" style="margin-top: 50px">
         <div class="form-outline" style="margin-right: 10px;margin-left: auto">
             <input type="search" size="70" id="search_field"
                    class="form-control" placeholder="Введите запрос..." value="{{ search_value }}"/>
@@ -28,14 +28,14 @@
     </div>
 
     {% for audio in audios %}
-        <div class="border rounded border-warning"
+        <div class="border rounded border-warning testanim"
              style="margin-top: 40px; margin-left: 250px; margin-right: 250px; margin-bottom: 50px">
             <a href="/user/{{ audio[0] }}" style="margin-top: 15px;margin-left: 15px;display: inline-block">
                 <img src="{{ audio[11] }}" width="48px" height="48px"
                      class="border rounded-circle border-danger"/> {{ audio[5] }}
             </a>
             <h4 style="padding-top: 20px;padding-bottom: 10px;padding-left: 20px">{{ audio[3] }}</h4>
-            <audio class="audio-main" src="/{{ audio[2] }}" controls onplay="stopAll({{ audio[6] }})"></audio>
+            <audio class="audio-main" src="/{{ audio[2] }}" controls onplay="stopAll({{ audio[6] }})" loop></audio>
             <p style="padding-left: 20px">Автор(ы): {{ audio[1] }}</p>
             <table style="margin-top: 20px; margin-bottom: 20px" width="1060px">
                 <tr>
@@ -85,9 +85,7 @@
             var x = document.getElementById("search_field").value;
             window.location.replace(`/main/${x}`);
         }
-    </script>
 
-    <script>
         function predelete(audio_id) {
             var old_element = document.getElementById(`predelete_op_${audio_id}`);
             var new_element = document.createElement('td');
@@ -97,15 +95,11 @@
 
             old_element.replaceWith(new_element);
         }
-    </script>
 
-    <script>
         function delete_audio(audio_id) {
             window.location.replace(`/delete_audio/${audio_id} main`);
         }
-    </script>
 
-    <script>
         function cancel(audio_id) {
             var old_element = document.getElementById(`delete_op_${audio_id}`);
             var new_element = document.createElement('td');
@@ -115,9 +109,7 @@
 
             old_element.replaceWith(new_element);
         }
-    </script>
 
-    <script>
         var a = document.getElementsByTagName("audio");
 
         function stopAll(b){

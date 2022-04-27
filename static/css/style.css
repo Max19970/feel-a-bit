@@ -18,6 +18,17 @@
     -ms-hyphens: auto;
 }
 
+.testanim {
+  opacity: 0;
+  transform: translateY(50%);
+  animation: anii 0.5s forwards;
+}
+
+@keyframes anii {
+  0% {opacity: 0; transform: translateY(50%);}
+  100% {opacity: 1; transform: translateY(0);}
+}
+
 .anim {
   opacity: 0;
   animation: ani 0.5s forwards;
@@ -27,6 +38,18 @@
   0% {opacity: 0;}
   100% {opacity: 1;}
 }
+
+
+.mainanim {
+  opacity: 0;
+  animation: mani 0.75s forwards;
+}
+
+@keyframes mani {
+  0% {opacity: 0;}
+  100% {opacity: 1;}
+}
+
 
 .rotateimg180 {
   -webkit-transform:rotate(180deg);

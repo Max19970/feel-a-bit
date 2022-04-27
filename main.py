@@ -47,7 +47,7 @@ def logout():
 
 
 @app.route('/')
-@app.route('/index/')
+@app.route('/title')
 def index():
     db_sess = db_session.create_session()
     auds = db_sess.query(Audio).all()
@@ -56,6 +56,8 @@ def index():
     pop_auds = []
     for audio in auds:
         pop_auds.append([audio.name, audio.file, audio.likes])
+    for i in range(len(pop_auds)):
+        pop_auds[i].append(i)
     return render_template('title.html', popular_audios=pop_auds, pop_len=len(pop_auds))
 
 
@@ -220,6 +222,8 @@ def user_prof(user_id):
         user_audios.append([audio.author, audio.file, audio.name, audio.genre, audio.id,
                             audio.likes, audio.dislikes, audio_likers, audio_dislikers,
                             comments_sum])
+    for i in range(len(user_audios)):
+        user_audios[i].append(i)
     user_role = roles[user.role]
     user_info = [user.surname, user.name, user_role, user.age, user.avatar_img, user.id, len(user_audios)]
     return render_template('user.html', user_info=user_info, user_audios=user_audios)

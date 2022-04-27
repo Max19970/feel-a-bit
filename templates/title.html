@@ -15,7 +15,7 @@
                     {% if pop_len < 5 %}
                         {% set otc = otc + "margin-top: 0px;" %}
                     {% endif %}
-                    <img src="/static/img/feel_logo.png" width="50%" height="50%"
+                    <img src="/static/img/feel_logo_title.png"
                          style="{{ otc }}"/><br>
                     <h1>Делись своим творчеством уже сейчас!</h1><br>
                     <a href="/main" class="btn btn-secondary"><font size="5" face="Trebuchet MS">Начать!</font></a>
@@ -29,7 +29,7 @@
                         <tr class="border-bottom border-warning">
                             <td class="border-right border-warning" style="padding: 5px">
                                 <h4 style="padding-top: 20px;padding-bottom: 10px;padding-left: 20px">{{ audio[0] }}</h4>
-                                <audio class="audio-title" src="{{ audio[1] }}" controls></audio>
+                                <audio class="audio-title" src="{{ audio[1] }}" controls onplay="stopAll({{ audio[3] }})" loop></audio>
                             </td>
                             <td align="center">
                                 <img align="center" src="/static/img/thumb.png" style="padding-left: 10px; padding-right: 10px"/><br>
@@ -42,4 +42,14 @@
             </td>
         </tr>
     </table>
+
+    <script>
+        var a = document.getElementsByTagName("audio");
+
+        function stopAll(b){
+            for(i=0;i<a.length;i++){
+                if(!(i==b)){a[i].pause(); a[i].currentTime=0} else {a[i].play()};
+            }
+        }
+    </script>
 {% endblock %}
