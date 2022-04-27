@@ -74,7 +74,7 @@ def site_main(search_value=None):
         publisher_avatar = publisher.avatar_img
         audio_likers = map(int, audio.likers.split()) if audio.likers else []
         audio_dislikers = map(int, audio.dislikers.split()) if audio.dislikers else []
-        comments_sum = len(audio.comments.split(',')) if audio.comments != '' else 0
+        comments_sum = len(audio.comments.split('✓')) if audio.comments != '' else 0
         audios.append([audio.publisher, audio.author, audio.file, audio.name,
                        audio.genre, publisher_name, audio.id, audio.likes,
                        audio.dislikes, audio_likers, audio_dislikers, publisher_avatar,
@@ -216,7 +216,7 @@ def user_prof(user_id):
     for audio in db_sess.query(Audio).filter(Audio.publisher == user_id).all():
         audio_likers = map(int, audio.likers.split()) if audio.likers else []
         audio_dislikers = map(int, audio.dislikers.split()) if audio.dislikers else []
-        comments_sum = len(audio.comments.split(',')) if audio.comments != '' else 0
+        comments_sum = len(audio.comments.split('✓')) if audio.comments != '' else 0
         user_audios.append([audio.author, audio.file, audio.name, audio.genre, audio.id,
                             audio.likes, audio.dislikes, audio_likers, audio_dislikers,
                             comments_sum])
